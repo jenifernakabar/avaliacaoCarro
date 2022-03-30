@@ -110,7 +110,5 @@ public class VeiculoDTO {
 	public void setStatus(Status status) {
 		this.status = status;
 	}
-	
-	
 
 }

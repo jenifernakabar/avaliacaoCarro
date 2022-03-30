@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,28 +32,46 @@ public class VeiculoController {
 
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
-	public VeiculoDTO criarVeiculo(@RequestBody VeiculoDTO veiculoDTO) throws VeiculoJaRegistradoException {
-		return veiculoService.criarVeiculo(veiculoDTO);
+	public ResponseEntity<VeiculoDTO> criarVeiculo(@RequestBody VeiculoDTO veiculoDTO) throws VeiculoJaRegistradoException {
+		veiculoDTO = veiculoService.criarVeiculo(veiculoDTO);
+		return new ResponseEntity<VeiculoDTO>(veiculoDTO,HttpStatus.CREATED);
 	}
 
 	@GetMapping
-	public ResponseEntity<List<Veiculo>> listar() {
+	public ResponseEntity<List<VeiculoDTO>> listar() {
 		return ResponseEntity.ok().body(veiculoService.listar());
 	}
 
 	@GetMapping("/{id}")
-	public VeiculoDTO detalharVeiculo(@PathVariable Long id) throws VeiculoNaoEncontradoException {
-		return veiculoService.buscarDetalhesVeiculo(id);
+	public ResponseEntity<VeiculoDTO> detalharVeiculo(@PathVariable Long id) throws VeiculoNaoEncontradoException {
+		VeiculoDTO veiculoDTO = veiculoService.buscarDetalhesVeiculo(id);
+		return ResponseEntity.ok().body(veiculoDTO);
+	}
+	
+	@PutMapping("/{id}")
+	public ResponseEntity<VeiculoDTO> atualizarVeiculo(@PathVariable Long id,@RequestBody VeiculoDTO veiculoDTO) throws VeiculoNaoEncontradoException {
+		VeiculoDTO DTO = veiculoService.atualizarVeiculo(id,veiculoDTO);
+		return ResponseEntity.ok().body(DTO);
 	}
 	
 	@PatchMapping("/{id}")
-	public VeiculoDTO atualizarStatus(@PathVariable Long id,@RequestBody VeiculoDTO veiculoDTO) throws VeiculoNaoEncontradoException {
-		return veiculoService.atualizarStatusVeiculo(id,veiculoDTO);
+	public ResponseEntity<VeiculoDTO>  atualizarStatus(@PathVariable Long id,@RequestBody VeiculoDTO veiculoDTO) throws VeiculoNaoEncontradoException {
+		VeiculoDTO DTO = veiculoService.atualizarStatusVeiculo(id,veiculoDTO);
+		return ResponseEntity.ok().body(DTO);
 	}
 	
 	@DeleteMapping("/{id}")
-	public VeiculoDTO delecaoLogica(@PathVariable Long id) throws VeiculoNaoEncontradoException {
-		return veiculoService.delecaoVeiculo(id);
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public ResponseEntity<VeiculoDTO> delecaoLogica(@PathVariable Long id) throws VeiculoNaoEncontradoException {
+		veiculoService.delecaoVeiculo(id);
+		return new ResponseEntity<VeiculoDTO>(HttpStatus.NO_CONTENT);
 	}
+	@GetMapping("/busca")
+	public ResponseEntity<List<VeiculoDTO>> buscaDinamica(
+			@RequestParam(value ="fabricante",required = false, defaultValue="")String fabricante,
+			@RequestParam(value ="nome",required = false, defaultValue="") String nome,
+			@RequestParam(value ="ano",required = false, defaultValue="0") int ano) throws VeiculoNaoEncontradoException {
+		return ResponseEntity.ok().body(veiculoService.listadinamica(fabricante,nome,ano));
+    }
 
 }
