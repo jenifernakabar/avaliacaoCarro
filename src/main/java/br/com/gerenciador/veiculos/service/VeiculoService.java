@@ -2,12 +2,10 @@ package br.com.gerenciador.veiculos.service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import br.com.gerenciador.veiculos.dto.VeiculoDTO;
@@ -16,21 +14,30 @@ import br.com.gerenciador.veiculos.enums.Status;
 import br.com.gerenciador.veiculos.exception.VeiculoJaRegistradoException;
 import br.com.gerenciador.veiculos.exception.VeiculoNaoEncontradoException;
 import br.com.gerenciador.veiculos.repository.VeiculoRepository;
-import br.com.gerenciador.veiculos.specification.SpecificationVeiculo;
 
 @Service
 public class VeiculoService {
-	@Autowired
 	private VeiculoRepository veiculoRepository;
-	@Autowired
 	private ModelMapper veiculoMapper;
+	
+	@Autowired
+	public VeiculoService(VeiculoRepository veiculoRepository, ModelMapper veiculoMapper) {
+		this.veiculoRepository = veiculoRepository;
+		this.veiculoMapper = veiculoMapper;
+	}
+	
 
-	public List<VeiculoDTO> listar() {
+	public List<VeiculoDTO> listar() throws VeiculoNaoEncontradoException {
 		// Se for necessario retornar todos os veiculos que o status for diferente de
 		// Deactivated
 		// .filter(v -> !v.getStatus().equals(Status.DEACTIVATED))
 		// Percorre a Stream e converte cada um dos elementos para um DTO
-		return veiculoRepository.findAll().stream().map(this::toVeiculoDTO).collect(Collectors.toList());
+//		 List<VeiculoDTO> collect = veiculoRepository.findAll().stream().map(this::toVeiculoDTO).collect(Collectors.toList());
+		 List<VeiculoDTO> collect = veiculoRepository.findByOrderByManufacturerAscNameAscYearAsc().stream().map(this::toVeiculoDTO).collect(Collectors.toList());
+		 if (collect.isEmpty()) {
+			throw new VeiculoNaoEncontradoException();
+		}
+		 return collect;
 	}
 
 	public VeiculoDTO criarVeiculo(VeiculoDTO veiculoDTO) throws VeiculoJaRegistradoException {
@@ -40,11 +47,11 @@ public class VeiculoService {
 		return veiculoMapper.map(veiculoSalvo, VeiculoDTO.class);
 	}
 
-	private void validarSeVeiculoJaExiste(VeiculoDTO veiculoDTO) throws VeiculoJaRegistradoException {
+	public void validarSeVeiculoJaExiste(VeiculoDTO veiculoDTO) throws VeiculoJaRegistradoException {
 		Optional<Veiculo> veiculo = veiculoRepository.findByChassiOrPlaca(veiculoDTO.getChassi(),
 				veiculoDTO.getPlaca());
 		if (veiculo.isPresent()) {
-			throw new VeiculoJaRegistradoException(veiculo.get().toString());
+			throw new VeiculoJaRegistradoException();
 		}
 	}
 
@@ -115,5 +122,7 @@ public class VeiculoService {
 //				);
 
 	}
+
+	
 
 }

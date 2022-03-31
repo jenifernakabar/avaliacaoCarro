@@ -1,10 +1,14 @@
-package br.com.gerenciador.veiculos.controller.api;
+package br.com.gerenciador.veiculos.controller;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyCollection;
+import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +34,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import br.com.gerenciador.veiculos.controller.VeiculoController;
 import br.com.gerenciador.veiculos.dto.VeiculoDTO;
 import br.com.gerenciador.veiculos.enums.Status;
+import br.com.gerenciador.veiculos.exception.VeiculoJaRegistradoException;
+import br.com.gerenciador.veiculos.exception.VeiculoNaoEncontradoException;
 import br.com.gerenciador.veiculos.repository.VeiculoRepository;
 import br.com.gerenciador.veiculos.service.VeiculoService;
 
@@ -59,27 +65,26 @@ public class VeiculoControllerTeste {
     }
 	
 	@Test
-	void quandoChamarApiCadastrarRetornarSucesso() throws Exception {
+	void cadastrarUmVeiculoNovoComSucesso() throws Exception {
 		VeiculoDTO veiculoBD = new VeiculoDTO();
 				
-				 when(veiculoService.criarVeiculo(veiculoBD)).thenReturn(veiculoBD);
+				 when(veiculoService.criarVeiculo(any())).thenReturn(any());
 
 				 mockMvc.perform(post(URL)
 			                .contentType(MediaType.APPLICATION_JSON)
-			                .content(asJsonString(veiculoBD)))
+							.content(asJsonString(veiculoBD)))
 			                .andExpect(status().isCreated());
 				 
     }
 	
 	 @Test
-	    void quandoChamarApiCadastrarComValoresInvalidosRetornarErro() throws Exception {
-		 	VeiculoDTO carro = new VeiculoDTO();
-	        
-		 	when(veiculoService.criarVeiculo(carro)).thenThrow(new HttpMessageNotReadableException(null));
+	    void tentarCadastrarUmVeiculoQueJaExisteNoBancoDeDados() throws Exception {
+	        VeiculoDTO v = new VeiculoDTO();
+		 	when(veiculoService.criarVeiculo(any())).thenThrow(new VeiculoJaRegistradoException());
 		 	
 	        mockMvc.perform(post(URL)
 	                .contentType(MediaType.APPLICATION_JSON)
-	                .content(asJsonString(carro)))
+	                .content(asJsonString(v)))
 	                .andExpect(status().isBadRequest());
 	               
 	        Mockito.verify(veiculoRepository,times(0)).save(Mockito.any());
@@ -87,9 +92,8 @@ public class VeiculoControllerTeste {
 	
 	@Test
 	void quandoChamarApiBuscarPorIdRetornarUmVeiculoEStatusOK() throws Exception {
-		VeiculoDTO veiculoBD = new VeiculoDTO(1L, "932sdtw028dft235dfr","Palio", "Fiat", 2010, "azul", Status.ACTIVATED, "DCF-5248" );
 		
-		 when(veiculoService.buscarDetalhesVeiculo(1L)).thenReturn(veiculoBD);
+		 when(veiculoService.buscarDetalhesVeiculo(any())).thenReturn(any());
 		 
 		 MockHttpServletRequestBuilder builder =
 	              MockMvcRequestBuilders.get(URL + "/1")
@@ -102,25 +106,78 @@ public class VeiculoControllerTeste {
 	}
 	@Test
 	void quandoChamarApiBuscarPorIdNaoRetornarUmVeiculoEStatusNotFound() throws Exception {
-		VeiculoDTO veiculoBD = new VeiculoDTO();
 		
-		Optional<VeiculoDTO> retorno = Optional.empty();
-		
-		when(veiculoService.buscarDetalhesVeiculo(1L)).thenReturn(veiculoBD);
-
+		when(veiculoService.buscarDetalhesVeiculo(any())).thenThrow(new VeiculoNaoEncontradoException());
 		
 		mockMvc.perform(MockMvcRequestBuilders.get(URL+"/1").contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isBadRequest());
+				.andExpect(status().isNotFound());
 	}
 	
-	public static String asJsonString(Object produto) {
+	@Test
+	void listarTodosOsVeiculosComSucesso() throws Exception {
+		
+		when(veiculoService.listar()).thenReturn(new ArrayList<VeiculoDTO>());
+		
+		mockMvc.perform(MockMvcRequestBuilders.get(URL).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isOk());
+	}
+	
+	@Test
+	void erroAolistarTodosOsVeiculos() throws Exception {
+		
+		when(veiculoService.listar()).thenThrow(new VeiculoNaoEncontradoException());
+		
+		mockMvc.perform(MockMvcRequestBuilders.get(URL).contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().isNotFound());
+	}
+	
+	@Test
+	void atualizarVeiculoComSucesso() throws Exception {
+		
+		VeiculoDTO veiculoDTO = new VeiculoDTO();
+		
+		when(veiculoService.atualizarVeiculo(any(), any())).thenReturn(veiculoDTO);
+		
+		 MockHttpServletRequestBuilder builder =
+	              MockMvcRequestBuilders.put(URL + "/1")
+	                                    .contentType(MediaType.APPLICATION_JSON)
+	                                    .accept(MediaType.APPLICATION_JSON)
+	                                    .content(asJsonString(new VeiculoDTO()))
+	                                    .characterEncoding("UTF-8");
+		 
+		 mockMvc.perform(builder)
+         		.andExpect(status().isOk());
+		
+	}
+	
+	@Test
+	void erroAoatualizarVeiculoVeiculoNaoEncontrado() throws Exception {
+		
+		when(veiculoService.atualizarVeiculo(any(), any())).thenThrow(new VeiculoNaoEncontradoException());
+		
+		 MockHttpServletRequestBuilder builder =
+	              MockMvcRequestBuilders.put(URL + "/1")
+	                                    .contentType(MediaType.APPLICATION_JSON)
+	                                    .accept(MediaType.APPLICATION_JSON)
+	                                    .content(asJsonString(new VeiculoDTO()))
+	                                    .characterEncoding("UTF-8");
+		 
+		 mockMvc.perform(builder)
+         		.andExpect(status().isNotFound());
+		
+	}
+	
+	
+	
+	
+	public static String asJsonString(Object veiculo) {
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
             objectMapper.registerModules(new JavaTimeModule());
 
-            return objectMapper.writeValueAsString(produto);
+            return objectMapper.writeValueAsString(veiculo);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

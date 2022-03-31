@@ -18,7 +18,7 @@ import static springfox.documentation.builders.RequestHandlerSelectors.*;
 public class SwaggerConfig {
 
     private static final String BASE_PACKAGE = "br.com.gerenciador.veiculos.controller";
-    private static final String API_TITLE = "_**gerenciamento de veículos.**_";
+    private static final String API_TITLE = "_**Gerenciamento de Veículos.**_";
     private static final String API_DESCRIPTION = "_**API Rest para gerenciamento de veículos.**_";
     private static final String CONTACT_NAME = "Jenifer Nakabar";
     private static final String CONTACT_GITHUB = "https://github.com/jenifernakabar";
@@ -38,7 +38,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title(API_TITLE)
                 .description(API_DESCRIPTION)
-                .version("1.0.0")
+                .version("0.0.1")
                 .contact(new Contact(CONTACT_NAME, CONTACT_GITHUB, CONTACT_EMAIL))
                 .build();
     }

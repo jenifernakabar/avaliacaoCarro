@@ -38,7 +38,7 @@ public class VeiculoController {
 	}
 
 	@GetMapping
-	public ResponseEntity<List<VeiculoDTO>> listar() {
+	public ResponseEntity<List<VeiculoDTO>> listar() throws VeiculoNaoEncontradoException {
 		return ResponseEntity.ok().body(veiculoService.listar());
 	}
 

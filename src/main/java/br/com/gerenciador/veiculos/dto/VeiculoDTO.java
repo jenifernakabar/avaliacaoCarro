@@ -40,6 +40,17 @@ public class VeiculoDTO {
 		this.status = type;
 		this.placa = placa;
 	}
+	
+	public VeiculoDTO( String chassi, String name, String manufacturer, int year, String color, Status type,
+			String placa) {
+		this.chassi = chassi;
+		this.name = name;
+		this.manufacturer = manufacturer;
+		this.year = year;
+		this.color = color;
+		this.status = type;
+		this.placa = placa;
+	}
 
 	public Long getId() {
 		return id;

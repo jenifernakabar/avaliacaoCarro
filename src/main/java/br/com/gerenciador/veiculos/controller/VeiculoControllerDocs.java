@@ -20,12 +20,12 @@ import io.swagger.annotations.ApiResponses;
 
 @Api("Gerenciamento de veiculos")
 public interface VeiculoControllerDocs {
-
+	
 	 @ApiOperation(value = "Criar um novo veiculo")
-	    @ApiResponses(value = {
+	     @ApiResponses(value = {
 	            @ApiResponse(code = 201, message = "Veiculo criado com sucesso!"),
 	            @ApiResponse(code = 400, message = "Campos informados inválidos") })
-	public VeiculoDTO criarVeiculo(@RequestBody VeiculoDTO veiculoDTO) throws VeiculoJaRegistradoException ;
+	 public VeiculoDTO criarVeiculo(@RequestBody VeiculoDTO veiculoDTO) throws VeiculoJaRegistradoException ;
 
 	 @ApiOperation(value = "Listar todos os veiculos")
 	    @ApiResponses(value = {
