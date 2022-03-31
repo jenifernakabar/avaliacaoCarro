@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import br.com.gerenciador.veiculos.dto.VeiculoDTO;
-import br.com.gerenciador.veiculos.entity.Veiculo;
 import br.com.gerenciador.veiculos.exception.VeiculoJaRegistradoException;
 import br.com.gerenciador.veiculos.exception.VeiculoNaoEncontradoException;
 import br.com.gerenciador.veiculos.service.VeiculoService;

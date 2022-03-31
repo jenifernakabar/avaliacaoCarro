@@ -1,12 +1,10 @@
-package br.com.gerenciador.veiculos.repository;
+package br.com.gerenciador.veiculos.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -15,7 +13,6 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
@@ -26,6 +23,7 @@ import br.com.gerenciador.veiculos.entity.Veiculo;
 import br.com.gerenciador.veiculos.enums.Status;
 import br.com.gerenciador.veiculos.exception.VeiculoJaRegistradoException;
 import br.com.gerenciador.veiculos.exception.VeiculoNaoEncontradoException;
+import br.com.gerenciador.veiculos.repository.VeiculoRepository;
 import br.com.gerenciador.veiculos.service.VeiculoService;
 
 public class VeiculoServiceTest {
@@ -113,7 +111,6 @@ public class VeiculoServiceTest {
 	
 	@Test
 	public void veiculoNaoEncontradoNoBancoDeDados() {
-		Optional<Veiculo> optional = Optional.of(criarVeiculo());
 		try {
 			when(veiculoService.buscarDetalhesVeiculo(anyLong())).thenThrow(new VeiculoNaoEncontradoException());
 			veiculoRepository.findById(anyLong());
@@ -132,11 +129,6 @@ public class VeiculoServiceTest {
 
 	private VeiculoDTO criarVeiculoDTO() {
 		VeiculoDTO veiculoDTO1 = new VeiculoDTO( "784snc651das2", "Fiesta", "Ford", 2015, "red", Status.ACTIVATED,
-				"ABC-4657");
-		return veiculoDTO1;
-	}
-	private VeiculoDTO criarVeiculoAtualizadoDTO() {
-		VeiculoDTO veiculoDTO1 = new VeiculoDTO( "784snc651das2", "Fiesta", "Ford", 2015, "white", Status.RENTED,
 				"ABC-4657");
 		return veiculoDTO1;
 	}
@@ -164,25 +156,6 @@ public class VeiculoServiceTest {
 		lista.add(veiculoDTO2);
 		lista.add(veiculoDTO3);
 		lista.add(veiculoDTO4);
-		return lista;
-	}
-	
-	private List<Veiculo> criaListaVeiculo() {
-		List<Veiculo> lista = new ArrayList<Veiculo>();
-
-		Veiculo veiculo1 = new Veiculo(1L, "784sdc651das2", "Fiesta", "Ford", 2015, "red", Status.ACTIVATED,
-				"ABC-4657");
-		Veiculo veiculo2 = new Veiculo(2L, "28h791asdwe874", "Ka", "Ford", 2016, "green", Status.ACTIVATED,
-				"ABC-7890");
-		Veiculo veiculo3 = new Veiculo(3L, "d4qwda6s5da4dqw", "Mondeo", "Ford", 1998, "black",
-				Status.ACTIVATED, "ABC-1478");
-		Veiculo veiculo4 = new Veiculo(4L, "28h79fsadfi98", "Focus", "Ford", 2018, "blue", Status.ACTIVATED,
-				"ABC-1234");
-
-		lista.add(veiculo1);
-		lista.add(veiculo2);
-		lista.add(veiculo3);
-		lista.add(veiculo4);
 		return lista;
 	}
 	
